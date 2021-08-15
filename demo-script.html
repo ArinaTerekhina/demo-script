@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -19,12 +20,17 @@
             <input type="text" name="art" id="art" />
             <button id="demo-test" name="go" class="t-btn">Подобрать шаблон</button>
         </div>
-
         <div id="demo-result">
             <div id="template"></div>
             <div id="photo-from-wb"></div>
             <div id="error-msg" class="t-section__descr t-descr t-descr_xl t-margin_auto">Фото не найдено!<br>Впишите в
                 поле реальный артикул</div>
+            <div class="draggable" id="somediv1" style="left: 0; top:30%;">Дизайн Миди</div>
+            <div class="draggable" id="somediv2" style="left: 317px; top:30%;"><span class="item">100%</span> вискоза</div>
+        </div>
+        <div>
+            <input type="text" id="inputid1">
+            <input type="text" id="inputid2">
         </div>
     </div>
 
@@ -94,6 +100,64 @@
             border: 1px solid #40a0ff;
             vertical-align: middle;
             text-align: center;
+
+        }
+
+        .draggable {
+            position: absolute;
+            border-radius: 50px;
+            padding: 0 20px;
+            line-height: 50px;
+            height: 50px;
+            text-align: center;
+            cursor: move;
+            z-index: 3;
+        }
+
+        .draggable.sticky-left {
+            border-radius: 0 50px 50px 0;
+        }
+
+        .draggable.sticky-right {
+            border-radius: 50px 0 0 50px;
+        }
+
+        .input-draggable {
+            padding: 10px 40px;
+        }
+
+        .design-template-0 .draggable {
+            display: none;
+        }
+
+        .design-template-1 .draggable {
+            background-color: #ccc;
+            padding: 0 20px;
+            line-height: 50px;
+            height: 50px;
+        }
+
+        .design-template-2 .draggable {
+            color: #565656;
+            border-bottom: 2px solid #565656;
+            border-radius: 0;
+        }
+
+        .design-template-3 .draggable {
+            background-color: #ccc;
+            padding: 0 20px;
+            line-height: 50px;
+            height: 50px;
+
+        }
+
+        .design-template-4 .draggable {
+            font-size: 30px;
+            border-radius: 0;
+
+        }
+        .design-template-4 .draggable.item {
+            font-size: 60px;
         }
     </style>
 
@@ -122,7 +186,7 @@
 
             console.log(templates[iRand])
 
-
+            $("#demo-result").attr("class", `design-template-${iRand}`);
 
             $.ajax({
                 url: 'https://images.wbstatic.net/big/new/' + art1part + '0000/' + articul + '-1.jpg',
@@ -171,6 +235,47 @@
 
             return false;
         })
+        $(function () {
+            const handlers = $(".draggable");
+
+            function getStickyClass(handler) {
+                const parent = $('#demo-result');
+                const defaultClass = 'draggable';
+                const position = {
+                    left: handler.offset().left - parent.offset().left,
+                    right: (parent.offset().left + parent.width()) - (handler.offset().left + handler.outerWidth())
+                }
+
+                if (Math.round(position.left) === 0) {
+                    return `${defaultClass} sticky-left`
+                }
+
+                if (Math.round(position.right) === 0) {
+                    return `${defaultClass} sticky-right`
+                }
+
+                return defaultClass;
+            }
+
+            handlers.each((index, el) => {
+                const $el = $(el);
+
+                $el.attr('class', getStickyClass($el))
+            });
+
+            handlers.draggable({
+                containment: "#demo-result",
+                drag: (e, ui) => {
+                    ui.helper.attr('class', getStickyClass(ui.helper))
+                },
+            });
+        });
+        $('#inputid1').keyup(function () {
+            $('#somediv1').html($(this).val());
+        });
+        $('#inputid2').keyup(function () {
+            $('#somediv2').html($(this).val());
+        });
 
     </script>
 
